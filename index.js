@@ -1,4 +1,3 @@
-require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectsCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
@@ -7,21 +6,32 @@ const path = require("path");
 const { pipeline } = require("stream");
 const { promisify } = require("util");
 
+AWS_REGION="ap-southeast-1"
+AWS_ACCESS_KEY_ID="AKIAW3MD75CUP5IU25V5"
+AWS_SECRET_ACCESS_KEY="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"
+AWS_S3_BUCKET="tele-img"
 
-BOT_TOKEN = process.env.TELEGRAM_BOT_DAT_TOKEN;
+TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw"
+TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
+
+AWS_RESULT_BUCKET="excel-results"
+
+
+
+BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 // const chatId = "-4613288345";
 console.log("bot dang chay");
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+  region: AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
 });
 
-const AWS_RESULT_BUCKET = "excel-results";
+
 const downloadDir = path.join(__dirname, "downloads");
 if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir);
 
@@ -101,7 +111,7 @@ bot.on("photo", async (msg) => {
     const fileInfo = await bot.getFile(fileId);
 
     console.log("File Info:", fileInfo);
-    const fileUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_DAT_TOKEN}/${fileInfo.file_path}`;
+    const fileUrl = `https://api.telegram.org/file/bot${TELEGRAM_BOT_DAT_TOKEN}/${fileInfo.file_path}`;
     console.log(" fileUrl " + fileUrl)
     console.log("File Path:", fileInfo.file_path);
     console.log("File URL:", fileUrl);
@@ -191,7 +201,7 @@ async function uploadExelFileToS3(filePath, fileName, bucketName, contentType) {
 async function uploadFileToS3(filePath, fileName) {
   const fileStream = fs.createReadStream(filePath);
   const uploadParams = {
-    Bucket: process.env.AWS_S3_BUCKET,
+    Bucket: AWS_S3_BUCKET,
     Key: fileName,
     Body: fileStream,
     ContentType: "image/jpeg",
