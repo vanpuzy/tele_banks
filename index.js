@@ -7,8 +7,8 @@ const { pipeline } = require("stream");
 const { promisify } = require("util");
 
 AWS_REGION="ap-southeast-1"
-AWS_ACCESS_KEY_ID="AKIAW3MD75CUP5IU25V5"
-AWS_SECRET_ACCESS_KEY="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"
+AWS_ACCESS_KEY_ID="AKIAW3MD75CUMIUMXIVG"
+AWS_SECRET_ACCESS_KEY="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"
 AWS_S3_BUCKET="tele-img"
 
 TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw"
@@ -18,7 +18,7 @@ AWS_RESULT_BUCKET="excel-results"
 
 
 
-BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
+BOT_TOKEN = TELEGRAM_BOT_PHUONG_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 // const chatId = "-4613288345";
 console.log("bot dang chay");
