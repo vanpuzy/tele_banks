@@ -10,8 +10,8 @@ AWS_REGION="ap-southeast-1"
 AWS_ACCESS_KEY_ID="AKIAW3MD75CUMIUMXIVG"
 AWS_SECRET_ACCESS_KEY="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"
 AWS_S3_BUCKET="tele-img"
-// TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
- TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // khach
+TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+// TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
 TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET="excel-results"
 
@@ -36,6 +36,7 @@ if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir);
 
 bot.on("message", async (msg) => {
   const group_chatId = msg.chat.id;
+  console.log(" receive from group_chatId "+ group_chatId)
   if (msg.text === "\\down") {
     try {
       const listCommand = new ListObjectsV2Command({ Bucket: AWS_RESULT_BUCKET });
