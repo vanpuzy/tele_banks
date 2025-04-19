@@ -11,11 +11,11 @@ AWS_ACCESS_KEY_ID="AKIAW3MD75CUMIUMXIVG"
 AWS_SECRET_ACCESS_KEY="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"
 AWS_S3_BUCKET="tele-img"
 
-// TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
+TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
 TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET="excel-results"
 
-TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+//TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
 BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
@@ -185,6 +185,9 @@ async function uploadExelFileToS3(filePath, fileName, bucketName, contentType) {
       Key: fileName, // 📌 Cố định file name trên S3 là transactions.xlsx
       Body: fileStream,
       ContentType: contentType,
+      // Metadata: {
+      //   chatid: chatId.toString()
+      // }
     };
 
     const result = await s3.send(new PutObjectCommand(uploadParams));
