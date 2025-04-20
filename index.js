@@ -6,14 +6,14 @@ const path = require("path");
 const { pipeline } = require("stream");
 const { promisify } = require("util");
 
-AWS_REGION="ap-southeast-1"
-AWS_ACCESS_KEY_ID="AKIAW3MD75CUMIUMXIVG"
-AWS_SECRET_ACCESS_KEY="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"
-AWS_S3_BUCKET="tele-img"
+AWS_REGION = "ap-southeast-1"
+AWS_ACCESS_KEY_ID = "AKIAW3MD75CUMIUMXIVG"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_S3_BUCKET = "tele-img"
 
-TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
-TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
-AWS_RESULT_BUCKET="excel-results"
+TELEGRAM_BOT_DAT_TOKEN = "8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
+TELEGRAM_BOT_PHUONG_TOKEN = "6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
+AWS_RESULT_BUCKET = "excel-results"
 
 // TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
@@ -36,7 +36,7 @@ if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir);
 
 bot.on("message", async (msg) => {
   const group_chatId = msg.chat.id;
-  console.log(" receive from group_chatId "+ group_chatId)
+  console.log(" receive from group_chatId " + group_chatId)
   if (msg.text === "\\down") {
     try {
       const listCommand = new ListObjectsV2Command({ Bucket: AWS_RESULT_BUCKET });
@@ -61,7 +61,7 @@ bot.on("message", async (msg) => {
     }
   }
   else if (msg.text === "\\clear") {
-  
+
     try {
       const listCommand = new ListObjectsV2Command({ Bucket: AWS_RESULT_BUCKET });
       const { Contents } = await s3.send(listCommand);
@@ -106,10 +106,10 @@ async function downloadFileFromS3(fileKey, filePath) {
 bot.on("photo", async (msg) => {
   const chatId = msg.chat.id;
 
-const userId = msg.from.id;
-const username = msg.from.username;
-const firstName = msg.from.first_name;
-const lastName = msg.from.last_name;
+  const userId = msg.from.id;
+  const username = msg.from.username;
+  const firstName = msg.from.first_name;
+  const lastName = msg.from.last_name;
 
 
   console.log("Received photo from:");
@@ -133,7 +133,7 @@ const lastName = msg.from.last_name;
     const filePath = path.join(__dirname, fileName);
 
     await retryDownload(fileUrl, filePath);
-    await uploadFileToS3(chatId, filePath, fileName);
+    await uploadFileToS3(msg, filePath, fileName);
     fs.unlinkSync(filePath);
     bot.sendMessage(chatId, `✅ Ảnh đã được tải lên`);
     // bot.sendMessage(chatId, `✅ Ảnh đã được tải lên S3:\nhttps://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`);
@@ -180,7 +180,7 @@ async function uploadTransactionsToS3(group_chatId) {
     await uploadExelFileToS3(filePath, fileName, AWS_RESULT_BUCKET, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     console.log("✅ Đã tải lên transactions.xlsx vào bucket.");
-    bot.sendMessage(group_chatId,"✅ Đã clear transactions.xlsx file.");
+    bot.sendMessage(group_chatId, "✅ Đã clear transactions.xlsx file.");
   } catch (error) {
     console.error("❌ Lỗi khi tải lên transactions.xlsx:", error);
   }
@@ -212,7 +212,21 @@ async function uploadExelFileToS3(filePath, fileName, bucketName, contentType) {
 // uploadTransactionsToS3();
 
 
-async function uploadFileToS3(chatId,filePath, fileName) {
+async function uploadFileToS3(msg, filePath, fileName) {
+  const chatId = msg.chat.id;
+
+  const userId = msg.from.id;
+  const username = msg.from.username;
+  const firstName = msg.from.first_name;
+  const lastName = msg.from.last_name;
+
+
+  console.log("Received photo from:");
+  console.log(`- Chat ID: ${chatId}`);
+  console.log(`- User ID: ${userId}`);
+  console.log(`- Username: ${username}`);
+  console.log(`- Name: ${firstName} ${lastName}`);
+
   const fileStream = fs.createReadStream(filePath);
   const uploadParams = {
     Bucket: AWS_S3_BUCKET,
@@ -220,7 +234,10 @@ async function uploadFileToS3(chatId,filePath, fileName) {
     Body: fileStream,
     ContentType: "image/jpeg",
     Metadata: {
-      chatid: chatId.toString()
+      chatid: chatId.toString(),
+      userid: userId.toString(),
+      username: username.toString() 
+
     }
   };
   await s3.send(new PutObjectCommand(uploadParams));
