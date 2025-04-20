@@ -15,7 +15,7 @@ TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho k
 TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET="excel-results"
 
-//TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+// TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
 BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
@@ -105,7 +105,18 @@ async function downloadFileFromS3(fileKey, filePath) {
 
 bot.on("photo", async (msg) => {
   const chatId = msg.chat.id;
-  console.log(" receive from chatID "+ chatId)
+
+const userId = msg.from.id;
+const username = msg.from.username;
+const firstName = msg.from.first_name;
+const lastName = msg.from.last_name;
+
+
+  console.log("Received photo from:");
+  console.log(`- Chat ID: ${chatId}`);
+  console.log(`- User ID: ${userId}`);
+  console.log(`- Username: ${username}`);
+  console.log(`- Name: ${firstName} ${lastName}`);
   try {
     const fileId = msg.photo[msg.photo.length - 1].file_id;
     const fileInfo = await bot.getFile(fileId);
