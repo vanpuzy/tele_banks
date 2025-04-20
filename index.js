@@ -11,11 +11,11 @@ AWS_ACCESS_KEY_ID="AKIAW3MD75CUMIUMXIVG"
 AWS_SECRET_ACCESS_KEY="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"
 AWS_S3_BUCKET="tele-img"
 
-TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
+//TELEGRAM_BOT_DAT_TOKEN="8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho khach
 TELEGRAM_BOT_PHUONG_TOKEN="6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET="excel-results"
 
-//TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
 BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
@@ -122,7 +122,7 @@ bot.on("photo", async (msg) => {
     const filePath = path.join(__dirname, fileName);
 
     await retryDownload(fileUrl, filePath);
-    await uploadFileToS3(filePath, fileName);
+    await uploadFileToS3(chatId, filePath, fileName);
     fs.unlinkSync(filePath);
     bot.sendMessage(chatId, `✅ Ảnh đã được tải lên`);
     // bot.sendMessage(chatId, `✅ Ảnh đã được tải lên S3:\nhttps://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`);
@@ -201,13 +201,16 @@ async function uploadExelFileToS3(filePath, fileName, bucketName, contentType) {
 // uploadTransactionsToS3();
 
 
-async function uploadFileToS3(filePath, fileName) {
+async function uploadFileToS3(chatId,filePath, fileName) {
   const fileStream = fs.createReadStream(filePath);
   const uploadParams = {
     Bucket: AWS_S3_BUCKET,
     Key: fileName,
     Body: fileStream,
     ContentType: "image/jpeg",
+    Metadata: {
+      chatid: chatId.toString()
+    }
   };
   await s3.send(new PutObjectCommand(uploadParams));
 }
