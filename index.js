@@ -60,6 +60,21 @@ bot.on("message", async (msg) => {
         bot.sendMessage(group_chatId, "❌ Không có dữ liệu cho group này.");
         return;
       }
+      
+      // 👇 Set column widths for better readability
+      worksheet["!cols"] = [
+        { wch: 5 },    // stt
+        { wch: 20 },   // user_name
+        { wch: 15 },   // user_id
+        { wch: 20 },   // account_number
+        { wch: 25 },   // recipient
+        { wch: 15 },   // amount
+        { wch: 12 },   // date
+        { wch: 10 },   // time
+        { wch: 20 },   // sending_bank
+        { wch: 40 },   // transaction_content
+        { wch: 15 }    // group_chat_id
+      ];
   
       // Create Excel workbook
       const workbook = xlsx.utils.book_new();
