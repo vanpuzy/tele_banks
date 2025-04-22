@@ -17,7 +17,7 @@ TELEGRAM_BOT_DAT_TOKEN = "8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho
 TELEGRAM_BOT_PHUONG_TOKEN = "6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET = "excel-results"
 
- //TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+//TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
 BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
@@ -55,11 +55,16 @@ bot.on("message", async (msg) => {
         [group_chatId]
       );
       await connection.end();
-  
+
       if (!rows || rows.length === 0) {
         bot.sendMessage(group_chatId, "❌ Không có dữ liệu cho group này.");
         return;
       }
+
+
+      // Create Excel workbook
+      const workbook = xlsx.utils.book_new();
+      const worksheet = xlsx.utils.json_to_sheet(rows);
       
       // 👇 Set column widths for better readability
       worksheet["!cols"] = [
@@ -75,20 +80,17 @@ bot.on("message", async (msg) => {
         { wch: 40 },   // transaction_content
         { wch: 15 }    // group_chat_id
       ];
-  
-      // Create Excel workbook
-      const workbook = xlsx.utils.book_new();
-      const worksheet = xlsx.utils.json_to_sheet(rows);
+
       xlsx.utils.book_append_sheet(workbook, worksheet, "GroupData");
-  
+
       // Save file
       const fileName = `bill_data_${group_chatId}_${Date.now()}.xlsx`;
       const filePath = path.join(downloadDir, fileName);
       xlsx.writeFile(workbook, filePath);
-  
+
       // Send file
       await bot.sendDocument(group_chatId, filePath);
-  
+
       // Delete after send
       fs.unlinkSync(filePath);
     } catch (err) {
@@ -272,7 +274,7 @@ async function uploadFileToS3(msg, filePath, fileName) {
     Metadata: {
       chatid: chatId.toString(),
       userid: userId.toString(),
-      username: username.toString() 
+      username: username.toString()
 
     }
   };
