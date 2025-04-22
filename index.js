@@ -19,7 +19,7 @@ AWS_RESULT_BUCKET = "excel-results"
 
  //TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
-BOT_TOKEN = TELEGRAM_BOT_PHUONG_TOKEN;
+BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 // const chatId = "-4613288345";
 console.log("bot dang chay");
