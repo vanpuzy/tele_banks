@@ -5,6 +5,8 @@ const fs = require("fs");
 const path = require("path");
 const { pipeline } = require("stream");
 const { promisify } = require("util");
+const mysql = require("mysql2/promise");
+const xlsx = require("xlsx");
 
 AWS_REGION = "ap-southeast-1"
 AWS_ACCESS_KEY_ID = "AKIAW3MD75CUMIUMXIVG"
@@ -15,9 +17,9 @@ TELEGRAM_BOT_DAT_TOKEN = "8119514734:AAH7nyFjXyVlRUhrpok17XX4CKFTmMlhoJw" // cho
 TELEGRAM_BOT_PHUONG_TOKEN = "6037137720:AAFBEfCG9xWY4K_3tx7VSZzMXGgmt9-Zdog"
 AWS_RESULT_BUCKET = "excel-results"
 
-// TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
+ //TELEGRAM_BOT_DAT_TOKEN="7877333833:AAGFGxKuVBt2SLU0QnVKcVL4Ee1C7SquIr4"
 
-BOT_TOKEN = TELEGRAM_BOT_DAT_TOKEN;
+BOT_TOKEN = TELEGRAM_BOT_PHUONG_TOKEN;
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 // const chatId = "-4613288345";
 console.log("bot dang chay");
@@ -30,6 +32,13 @@ const s3 = new S3Client({
   },
 });
 
+// DB config
+const dbConfig = {
+  host: "database-hpnrt.cz0i2cyea1x3.ap-northeast-2.rds.amazonaws.com",
+  user: "admin",
+  password: "12345678",
+  database: "hpnrt"
+};
 
 const downloadDir = path.join(__dirname, "downloads");
 if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir);
@@ -39,25 +48,37 @@ bot.on("message", async (msg) => {
   console.log(" receive from group_chatId " + group_chatId)
   if (msg.text === "\\down") {
     try {
-      const listCommand = new ListObjectsV2Command({ Bucket: AWS_RESULT_BUCKET });
-      const { Contents } = await s3.send(listCommand);
-
-      if (!Contents || Contents.length === 0) {
-        bot.sendMessage(group_chatId, "❌ Không có file nào trong bucket.");
+      // Connect to database
+      const connection = await mysql.createConnection(dbConfig);
+      const [rows] = await connection.execute(
+        "SELECT * FROM bill_data WHERE group_chat_id = ?",
+        [group_chatId]
+      );
+      await connection.end();
+  
+      if (!rows || rows.length === 0) {
+        bot.sendMessage(group_chatId, "❌ Không có dữ liệu cho group này.");
         return;
       }
-
-      for (const file of Contents) {
-        const fileKey = file.Key;
-        const localFilePath = path.join(downloadDir, path.basename(fileKey));
-
-        await downloadFileFromS3(fileKey, localFilePath);
-        await bot.sendDocument(group_chatId, localFilePath);
-        fs.unlinkSync(localFilePath);
-      }
-    } catch (error) {
-      console.error("❌ Lỗi khi tải file:", error);
-      bot.sendMessage(group_chatId, "❌ Có lỗi xảy ra khi tải file từ S3.");
+  
+      // Create Excel workbook
+      const workbook = xlsx.utils.book_new();
+      const worksheet = xlsx.utils.json_to_sheet(rows);
+      xlsx.utils.book_append_sheet(workbook, worksheet, "GroupData");
+  
+      // Save file
+      const fileName = `bill_data_${group_chatId}_${Date.now()}.xlsx`;
+      const filePath = path.join(downloadDir, fileName);
+      xlsx.writeFile(workbook, filePath);
+  
+      // Send file
+      await bot.sendDocument(group_chatId, filePath);
+  
+      // Delete after send
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.error("❌ Error generating Excel:", err);
+      bot.sendMessage(group_chatId, "❌ Có lỗi khi tạo hoặc gửi file Excel.");
     }
   }
   else if (msg.text === "\\clear") {
