@@ -61,11 +61,14 @@ bot.on("message", async (msg) => {
         return;
       }
 
-
+      // Add "STT" column as row index starting from 1
+      rows.forEach((row, index) => {
+        row["STT"] = index + 1; // STT starts from 1
+      });
       // Create Excel workbook
       const workbook = xlsx.utils.book_new();
       const worksheet = xlsx.utils.json_to_sheet(rows);
-      
+
       // 👇 Set column widths for better readability
       worksheet["!cols"] = [
         { wch: 5 },    // stt
