@@ -62,9 +62,13 @@ bot.on("message", async (msg) => {
       }
 
       // Add "STT" column as row index starting from 1
-      rows.forEach((row, index) => {
-        row["STT"] = index + 1; // STT starts from 1
-      });
+        // Add "STT" column as row index starting from 1
+    const updatedRows = rows.map((row, index) => {
+      return {
+        STT: index + 1,      // Add STT column, start from 1
+        ...row               // Copy all original row data
+      };
+    });
       // Create Excel workbook
       const workbook = xlsx.utils.book_new();
       const worksheet = xlsx.utils.json_to_sheet(rows);
