@@ -61,17 +61,25 @@ bot.on("message", async (msg) => {
         return;
       }
 
-      // Add "STT" column as row index starting from 1
-        // Add "STT" column as row index starting from 1
-    const updatedRows = rows.map((row, index) => {
-      return {
-        STT: index + 1,      // Add STT column, start from 1
-        ...row               // Copy all original row data
-      };
-    });
+      const updatedRows = rows.map((row, index) => {
+        return {
+          STT: index + 1,  // STT sẽ bắt đầu từ 1 và tiếp tục
+          user_name: row.user_name,
+          user_id: row.user_id,
+          account_number: row.account_number,
+          recipient: row.recipient,
+          amount: row.amount,
+          date: row.date,
+          time: row.time,
+          sending_bank: row.sending_bank,
+          transaction_content: row.transaction_content,
+          group_chat_id: row.group_chat_id
+        };
+      });
+
       // Create Excel workbook
       const workbook = xlsx.utils.book_new();
-      const worksheet = xlsx.utils.json_to_sheet(rows);
+      const worksheet = xlsx.utils.json_to_sheet(updatedRows);
 
       // 👇 Set column widths for better readability
       worksheet["!cols"] = [
