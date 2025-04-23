@@ -81,7 +81,7 @@ bot.on("message", async (msg) => {
       const workbook = xlsx.utils.book_new();
       const worksheet = xlsx.utils.json_to_sheet(updatedRows);
 
-      
+
       // 👇 Set column widths for better readability
       worksheet["!cols"] = [
         { wch: 5 },    // stt
@@ -158,10 +158,12 @@ async function downloadFileFromS3(fileKey, filePath) {
 
 
 bot.on("photo", async (msg) => {
+
+  const from = msg.from;
+  const username = from.username || `${from.first_name} ${from.last_name || ''}`.trim();
   const chatId = msg.chat.id;
 
   const userId = msg.from.id;
-  const username = msg.from.username;
   const firstName = msg.from.first_name;
   const lastName = msg.from.last_name;
 
