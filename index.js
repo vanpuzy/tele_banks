@@ -160,19 +160,25 @@ async function downloadFileFromS3(fileKey, filePath) {
 bot.on("photo", async (msg) => {
 
   const from = msg.from;
-  const username = from.username || `${from.first_name} ${from.last_name || ''}`.trim();
+
   const chatId = msg.chat.id;
 
   const userId = msg.from.id;
-  const firstName = msg.from.first_name;
-  const lastName = msg.from.last_name;
+  // const firstName = msg.from.first_name;
+  // const lastName = msg.from.last_name ||"";
+
+  const username = from.username;
+  const displayName = username 
+    ? `@${username}` 
+    : `${from.first_name} ${from.last_name || ''}`.trim();
 
 
   console.log("Received photo from:");
   console.log(`- Chat ID: ${chatId}`);
   console.log(`- User ID: ${userId}`);
-  console.log(`- Username: ${username}`);
-  console.log(`- Name: ${firstName} ${lastName}`);
+  console.log(`- displayName: ${displayName}`);
+
+
   try {
     const fileId = msg.photo[msg.photo.length - 1].file_id;
     const fileInfo = await bot.getFile(fileId);
@@ -269,19 +275,25 @@ async function uploadExelFileToS3(filePath, fileName, bucketName, contentType) {
 
 
 async function uploadFileToS3(msg, filePath, fileName) {
+  
+  const from = msg.from;
   const chatId = msg.chat.id;
-
   const userId = msg.from.id;
-  const username = msg.from.username;
-  const firstName = msg.from.first_name;
-  const lastName = msg.from.last_name;
+  // const firstName = msg.from.first_name;
+  // const lastName = msg.from.last_name ||"";
+
+  const username = from.username;
+  const displayName = username 
+    ? `@${username}` 
+    : `${from.first_name} ${from.last_name || ''}`.trim();
 
 
   console.log("Received photo from:");
   console.log(`- Chat ID: ${chatId}`);
   console.log(`- User ID: ${userId}`);
-  console.log(`- Username: ${username}`);
-  console.log(`- Name: ${firstName} ${lastName}`);
+  console.log(`- displayName: ${displayName}`);
+
+
 
   const fileStream = fs.createReadStream(filePath);
   const uploadParams = {
@@ -292,7 +304,7 @@ async function uploadFileToS3(msg, filePath, fileName) {
     Metadata: {
       chatid: chatId.toString(),
       userid: userId.toString(),
-      username: username.toString()
+      username: displayName.toString()
 
     }
   };
