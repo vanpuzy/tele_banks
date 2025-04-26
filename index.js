@@ -43,6 +43,11 @@ const dbConfig = {
 const downloadDir = path.join(__dirname, "downloads");
 if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir);
 
+
+function removeDiacritics(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 bot.on("message", async (msg) => {
   const group_chatId = msg.chat.id;
   console.log(" receive from group_chatId " + group_chatId)
@@ -304,7 +309,7 @@ async function uploadFileToS3(msg, filePath, fileName) {
     Metadata: {
       chatid: chatId.toString(),
       userid: userId.toString(),
-      username: displayName.toString()
+      username: removeDiacritics(displayName.toString())
 
     }
   };
